@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:social_media/Widgets/MyAppBar.dart';
 import 'package:social_media/Widgets/MyBottomNavigationBar.dart';
+import 'package:social_media/Widgets/MyFloatingActionButton.dart';
 
 class MessagesPage extends StatefulWidget {
   const MessagesPage({super.key});
@@ -15,6 +16,8 @@ class _MessagesPageState extends State<MessagesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: MyAppBar(),
+      floatingActionButton: MyFloatingActionButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       bottomNavigationBar: MyBottomNavigationBar(),
       body: SafeArea(
         child: Column(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:social_media/Widgets/MyAppBar.dart';
 import 'package:social_media/Widgets/MyBottomNavigationBar.dart';
+import 'package:social_media/Widgets/MyFloatingActionButton.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -15,6 +16,8 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: MyAppBar(),
+      floatingActionButton: MyFloatingActionButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       bottomNavigationBar: MyBottomNavigationBar(),
       body: SingleChildScrollView(
         child: ModernSearchBar(

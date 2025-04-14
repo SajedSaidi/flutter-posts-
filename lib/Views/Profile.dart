@@ -1,15 +1,16 @@
 import 'dart:io';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:social_media/Controllers/AuthController.dart';
 import 'package:social_media/Controllers/UserProfileController.dart';
-import 'package:social_media/Utils/Api.dart';
 import 'package:social_media/Utils/GlobalFunctions.dart';
+import 'package:social_media/Widgets/FetchPosts.dart';
+import 'package:social_media/Widgets/KeepAlivePageState.dart';
 import 'package:social_media/Widgets/MyAppBar.dart';
 import 'package:social_media/Widgets/MyBottomNavigationBar.dart';
+import 'package:social_media/Widgets/MyFloatingActionButton.dart';
+import 'package:social_media/Widgets/MyNetworkImage.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -23,7 +24,7 @@ class _ProfilePageState extends State<ProfilePage>
   late final authController = Get.put(AuthController());
   late final userProfileController = Get.put(UserProfileController());
   late TabController _tabController = TabController(length: 3, vsync: this);
-
+  final formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
@@ -41,7 +42,7 @@ class _ProfilePageState extends State<ProfilePage>
     await authController.logout();
   }
 
-  Future<XFile?> _pickImage() async {
+  Future<void> _pickImage() async {
     try {
       final pickedFile = await userProfileController.picker
           .pickImage(source: ImageSource.gallery);
@@ -52,21 +53,17 @@ class _ProfilePageState extends State<ProfilePage>
       });
     } catch (e) {
       print(e);
-      return null;
     }
   }
 
   void saveChanges() async {
-    if (userProfileController.formKey.currentState!.validate()) {
-      setState(() {
-        userProfileController.isLoading = true.obs;
-      });
+    if (formKey.currentState!.validate()) {
+      userProfileController.isLoading = true.obs;
 
       final isSuccess = await userProfileController.saveUserProfile();
 
-      setState(() {
-        userProfileController.isLoading = false.obs;
-      });
+      userProfileController.isLoading = false.obs;
+      setState(() {});
       if (isSuccess) {
         print('image after rerender ${authController.user?.profile?.image}');
         Get.snackbar('Success', 'Profile updated successfully');
@@ -81,6 +78,8 @@ class _ProfilePageState extends State<ProfilePage>
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: MyAppBar(),
+      floatingActionButton: MyFloatingActionButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       bottomNavigationBar: MyBottomNavigationBar(),
       body: SingleChildScrollView(
         child: Column(
@@ -102,35 +101,8 @@ class _ProfilePageState extends State<ProfilePage>
                                   )
                                 : ClipRRect(
                                     borderRadius: BorderRadius.circular(50),
-                                    child: Image(
-                                      image: NetworkImage(
-                                          '${Api.baseURL}/${authController.user!.profile!.image!}'),
-                                      loadingBuilder:
-                                          (context, child, loadingProgress) {
-                                        if (loadingProgress == null) {
-                                          return child;
-                                        } else {
-                                          return Center(
-                                            child: CircularProgressIndicator(
-                                              value: loadingProgress
-                                                          .expectedTotalBytes !=
-                                                      null
-                                                  ? loadingProgress
-                                                          .cumulativeBytesLoaded /
-                                                      (loadingProgress
-                                                              .expectedTotalBytes ??
-                                                          1)
-                                                  : null,
-                                            ),
-                                          );
-                                        }
-                                      },
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        print(error);
-                                        return Icon(
-                                            Icons.error); // Handle error
-                                      },
+                                    child: MyNetworkImage(
+                                      url: authController.user!.profile!.image,
                                     ))
                             : Icon(Icons.person, size: 90),
                       ),
@@ -216,29 +188,43 @@ class _ProfilePageState extends State<ProfilePage>
               ],
             ),
             SizedBox(
-              height: 400,
+              height: MediaQuery.of(context).size.height -
+                  kToolbarHeight - // Adjust for app bar
+                  kBottomNavigationBarHeight - // Adjust for bottom nav bar
+                  48, // Adjust for the TabBar height
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  Center(
-                      child: Text('Dashboard Page',
-                          style: TextStyle(fontSize: 24))),
-                  Center(
-                      child: Text('Save Page', style: TextStyle(fontSize: 24))),
-                  SingleChildScrollView(
-                    child: Container(
-                      padding: EdgeInsets.all(16),
-                      child: Form(
-                        key: userProfileController.formKey,
-                        child: Column(
-                          children: [
-                            Container(
+                  KeepAlivePage(
+                    child: FetchPosts(
+                      user: authController.user,
+                    ),
+                  ),
+                  KeepAlivePage(
+                    child: Center(
+                      child: Text(
+                        'Save Page',
+                        style: TextStyle(fontSize: 24),
+                      ),
+                    ),
+                  ),
+                  KeepAlivePage(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Form(
+                          key: formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Avatar or image logic
+                              Container(
                                 width: 80,
                                 height: 80,
                                 child: userProfileController.image != null
-                                    ? CircleAvatar(
-                                        radius: 45,
-                                        backgroundImage: FileImage(
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(80),
+                                        child: Image.file(
                                           File(userProfileController
                                               .image!.path),
                                         ),
@@ -247,117 +233,86 @@ class _ProfilePageState extends State<ProfilePage>
                                             null
                                         ? CircleAvatar(
                                             radius: 45,
-                                            child: Image(
-                                              image: NetworkImage(
-                                                  '${Api.baseURL}/${authController.user!.profile!.image!}'),
-                                              loadingBuilder: (context, child,
-                                                  loadingProgress) {
-                                                if (loadingProgress == null) {
-                                                  return child;
-                                                } else {
-                                                  return Center(
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                      value: loadingProgress
-                                                                  .expectedTotalBytes !=
-                                                              null
-                                                          ? loadingProgress
-                                                                  .cumulativeBytesLoaded /
-                                                              (loadingProgress
-                                                                      .expectedTotalBytes ??
-                                                                  1)
-                                                          : null,
-                                                    ),
-                                                  );
-                                                }
-                                              },
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Icon(Icons
-                                                    .error); // Handle error
-                                              },
-                                            ))
-                                        : Icon(Icons.person, size: 90)),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () {
-                                _pickImage();
-                              },
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.camera_alt),
-                                  const SizedBox(width: 8),
-                                  Text('Change Profile Picture'),
-                                ],
+                                            child: MyNetworkImage(
+                                              url: authController
+                                                  .user?.profile?.image,
+                                            ),
+                                          )
+                                        : Icon(Icons.person, size: 90),
                               ),
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              decoration: InputDecoration(
-                                hintText: "Bio",
-                                border: OutlineInputBorder(),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: _pickImage,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.camera_alt),
+                                    const SizedBox(width: 8),
+                                    Text('Change Profile Picture'),
+                                  ],
+                                ),
                               ),
-                              maxLines: 4, // Allow more space for bio input
-                              style: TextStyle(fontSize: 16),
-                              controller: userProfileController.bioController,
-                              validator: (value) {
-                                if (value!.isEmpty) {
-                                  return 'Bio cannot be empty';
-                                }
-                                if (value.length > 191) {
-                                  return 'Bio cannot be more than 191 characters';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () {
-                                saveChanges();
-                              },
-                              child: Text('Save Changes'),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () {
-                                Get.dialog(
-                                  AlertDialog(
-                                    title: Text('Logout'),
-                                    content: Text(
-                                        'Are you sure you want to logout?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Get.back();
-                                        },
-                                        child: Text(
-                                          'Cancel',
-                                          selectionColor: Colors.black,
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                decoration: InputDecoration(
+                                  hintText: "Bio",
+                                  border: OutlineInputBorder(),
+                                ),
+                                maxLines: 4, // Allow more space for bio input
+                                style: TextStyle(fontSize: 16),
+                                controller: userProfileController.bioController,
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return 'Bio cannot be empty';
+                                  }
+                                  if (value.length > 191) {
+                                    return 'Bio cannot be more than 191 characters';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: saveChanges,
+                                child: Text('Save Changes'),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Get.dialog(
+                                    AlertDialog(
+                                      title: Text('Logout'),
+                                      content: Text(
+                                          'Are you sure you want to logout?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Get.back();
+                                          },
+                                          child: Text('Cancel',
+                                              selectionColor: Colors.black),
                                         ),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          _submitLogout();
-                                        },
-                                        style: ButtonStyle(
-                                          backgroundColor:
-                                              WidgetStatePropertyAll(
-                                                  Colors.red),
+                                        ElevatedButton(
+                                          onPressed: _submitLogout,
+                                          style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all(
+                                                    Colors.red),
+                                          ),
+                                          child: Text('Logout'),
                                         ),
-                                        child: Text('Logout'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    WidgetStatePropertyAll(Colors.red),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all(Colors.red),
+                                ),
+                                child: Text('Logout'),
                               ),
-                              child: Text('Logout'),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),

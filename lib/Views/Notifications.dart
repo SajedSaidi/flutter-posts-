@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:social_media/Widgets/MyAppBar.dart';
 import 'package:social_media/Widgets/MyBottomNavigationBar.dart';
+import 'package:social_media/Widgets/MyFloatingActionButton.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -15,6 +16,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: MyAppBar(),
+      floatingActionButton: MyFloatingActionButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       bottomNavigationBar: MyBottomNavigationBar(),
       body: Container(
         padding: EdgeInsets.all(8),

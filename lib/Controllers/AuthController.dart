@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:social_media/Models/UserModel.dart';
@@ -20,7 +19,7 @@ class AuthController extends GetxController with GlobalFunctions {
   Future<void> redirect() async {
     var token = await GetStorage().read('login_token');
 
-    Future.delayed(Duration(seconds: 2), () async {
+    Future.delayed(Duration(seconds: 0), () async {
       if (token != null) {
         isLoggedIn.value = true;
 
@@ -35,12 +34,6 @@ class AuthController extends GetxController with GlobalFunctions {
 
         print(user);
         Get.toNamed('home', preventDuplicates: false);
-        // Get.dialog(
-        //   AlertDialog(
-        //     title: Text('Welcome back!'),
-        //     content: Text('You are already logged in.'),
-        //   ),
-        // );
       } else {
         Get.toNamed('landing', preventDuplicates: false);
       }
@@ -151,6 +144,7 @@ class AuthController extends GetxController with GlobalFunctions {
 
       return false;
     } on DioException catch (e) {
+      print(e);
       return false;
     }
   }

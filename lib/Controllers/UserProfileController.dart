@@ -9,7 +9,6 @@ import 'package:social_media/Utils/Api.dart';
 
 class UserProfileController extends GetxController {
   late final AuthController authController = Get.find<AuthController>();
-  late final formKey = GlobalKey<FormState>();
 
   var isLoading = false.obs;
   var fieldErrors = <String, String>{}.obs;

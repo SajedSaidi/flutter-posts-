@@ -3,7 +3,14 @@ import 'package:get/get.dart';
 import 'package:social_media/Controllers/AuthController.dart';
 import 'package:social_media/Utils/GlobalFunctions.dart';
 
-class SignUpPage extends StatelessWidget with GlobalFunctions {
+class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
+
+  @override
+  State<SignUpPage> createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> with GlobalFunctions {
   var isLoading = false.obs;
   final authController = Get.put(AuthController());
   final formKey = GlobalKey<FormState>();

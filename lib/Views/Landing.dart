@@ -36,7 +36,7 @@ class _LandingPageState extends State<LandingPage> {
             child: PageView.builder(
               controller: _pageController,
               onPageChanged: (index) {
-                if(selectedPage == (pages.length - 1)){
+                if (selectedPage == (pages.length - 1)) {
                   Get.toNamed('login');
                   print('hello');
                 }
@@ -44,8 +44,6 @@ class _LandingPageState extends State<LandingPage> {
                 setState(() {
                   selectedPage = index;
                 });
-
-
               },
               itemCount: pages.length,
               itemBuilder: (context, index) {
@@ -81,60 +79,58 @@ class _LandingPageState extends State<LandingPage> {
                             ),
                           ),
                           const SizedBox(height: 42),
-                          // Page Indicator
-                          PageViewDotIndicator(
-                            currentItem: selectedPage,
-                            count: pages.length,
-                            unselectedColor: Colors.black26,
-                            selectedColor:
-                            AppTheme.lightTheme.primaryColor,
-                            duration: const Duration(milliseconds: 200),
-                            boxShape: BoxShape.circle,
-                            onItemClicked: (index) {
-                              _pageController.animateToPage(
-                                index,
-                                duration: const Duration(milliseconds: 200),
-                                curve: Curves.easeInOut,
-                              );
-                            },
-                          ),
                         ],
                       ),
                     ),
 
-                    // Button Section
-                    Flexible(
-                      flex: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              if (index == pages.length - 1) {
-                                Get.toNamed('/login');
-                              } else {
-                                _pageController.nextPage(
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
-                              }
-                            },
-                            child: Text(
-                              index == pages.length - 1
-                                  ? "Get Started"
-                                  : "Next",
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 12,)
+                    const SizedBox(
+                      height: 12,
+                    )
                   ],
                 );
               },
+            ),
+          ),
+          // Page Indicator
+          PageViewDotIndicator(
+            currentItem: selectedPage,
+            count: pages.length,
+            unselectedColor: Colors.black26,
+            selectedColor: AppTheme.lightTheme.primaryColor,
+            duration: const Duration(milliseconds: 200),
+            size: Size(30, 8),
+            unselectedSize: Size(8, 8),
+            borderRadius: BorderRadius.circular(50),
+            boxShape: BoxShape.rectangle,
+            onItemClicked: (index) {
+              _pageController.animateToPage(
+                index,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+              );
+            },
+          ),
+
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (selectedPage == pages.length - 1) {
+                    Get.toNamed('/login');
+                  } else {
+                    _pageController.nextPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  }
+                },
+                child: Text(
+                  selectedPage == pages.length - 1 ? "Get Started" : "Next",
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
             ),
           ),
         ],

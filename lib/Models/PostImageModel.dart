@@ -1,22 +1,22 @@
 class PostImageModel {
   final int id;
-  final String imageName;
+  final String imagePath;
   final int postId;
 
   PostImageModel(
-      {required this.id, required this.imageName, required this.postId});
+      {required this.id, required this.imagePath, required this.postId});
 
   factory PostImageModel.fromJson(Map<String, dynamic> json) => PostImageModel(
         id: json['id'] as int,
-        imageName: json['image_name'] as String,
-        postId: json['post_id'] as int,
+        imagePath: json['imagePath'] as String,
+        postId: json['postId'] as int,
       );
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'image_name': imageName,
-      'post_id': postId,
+      'imagePath': imagePath,
+      'postId': postId,
     };
   }
 }

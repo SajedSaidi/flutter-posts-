@@ -1,7 +1,7 @@
 class UserProfileModel {
   final int id;
   final String bio;
-  final String? image;
+  String? image;
 
   UserProfileModel({required this.id, required this.bio, required this.image});
 

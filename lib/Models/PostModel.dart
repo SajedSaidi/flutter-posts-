@@ -1,5 +1,4 @@
 import 'package:social_media/Models/CategoryModel.dart';
-import 'package:social_media/Models/CommentModel.dart';
 import 'package:social_media/Models/PostImageModel.dart';
 import 'package:social_media/Models/UserModel.dart';
 
@@ -13,8 +12,8 @@ class PostModel {
   final int userId;
   final List<PostImageModel>? images;
   final List<CategoryModel>? categories;
-  final List<CommentModel>? comments;
-  final int likesCount;
+  int likesCount;
+  bool isLiked;
   final DateTime createdAt;
   final DateTime updatedAt;
   final UserModel user;
@@ -29,8 +28,8 @@ class PostModel {
     required this.userId,
     required this.images,
     this.categories,
-    this.comments,
     required this.likesCount,
+    required this.isLiked,
     required this.createdAt,
     required this.updatedAt,
     required this.user,
@@ -53,11 +52,8 @@ class PostModel {
               ?.map((image) => PostImageModel.fromJson(image))
               .toList() ??
           [],
-      comments: (json['comments'] as List<dynamic>?)
-              ?.map((comment) => CommentModel.fromJson(comment))
-              .toList() ??
-          [],
       likesCount: json['likesCount'] ?? 0,
+      isLiked: json['isLiked'] ?? false,
       createdAt: DateTime.parse(json['createdAt'] ?? '2000-01-01T00:00:00Z'),
       updatedAt: DateTime.parse(json['updatedAt'] ?? '2000-01-01T00:00:00Z'),
       user: UserModel.fromJson(json['user']),
@@ -73,10 +69,10 @@ class PostModel {
       'excerpt': excerpt,
       'status': status,
       'userId': userId,
-      'categories': categories?.map((category) => category.toJson()).toList(),
-      'comments': comments?.map((comment) => comment.toJson()).toList(),
-      'likesCount': likesCount,
       'images': images?.map((image) => image.toJson()).toList(),
+      'categories': categories?.map((category) => category.toJson()).toList(),
+      'likesCount': likesCount,
+      'isLiked': isLiked,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
       'user': user.toJson(),

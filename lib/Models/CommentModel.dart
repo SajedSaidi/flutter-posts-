@@ -6,12 +6,18 @@ class CommentModel {
   final int userId;
   final String content;
   final UserModel user;
-  CommentModel(
-      {required this.id,
-      required this.postId,
-      required this.userId,
-      required this.content,
-      required this.user});
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  CommentModel({
+    required this.id,
+    required this.postId,
+    required this.userId,
+    required this.content,
+    required this.user,
+    required this.createdAt,
+    required this.updatedAt,
+  });
 
   factory CommentModel.fromJson(Map<String, dynamic> json) {
     return CommentModel(
@@ -20,6 +26,10 @@ class CommentModel {
       userId: json['userId'],
       content: json['content'],
       user: UserModel.fromJson(json['user']),
+      createdAt: DateTime.parse(
+        json['createdAt'],
+      ).toLocal(),
+      updatedAt: DateTime.parse(json['updatedAt']).toLocal(),
     );
   }
 
@@ -30,6 +40,8 @@ class CommentModel {
       'userId': userId,
       'content': content,
       'user': user.toJson(),
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
     };
   }
 }
